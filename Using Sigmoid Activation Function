@@ -1,0 +1,68 @@
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
+# Sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def softmax(x):
+    exp_scores = np.exp(x - np.max(x, axis=1, keepdims=True))
+    return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+# Sigmoid neuron class
+class SigmoidNeuron:
+    def __init__(self, input_size, output_size):
+        self.weights = np.random.rand(input_size, output_size)
+        self.bias = np.random.rand(output_size)
+
+    def forward(self, X):
+        z = np.dot(X, self.weights) + self.bias
+        return softmax(z)
+
+    def train(self, X, y, learning_rate=0.01, epochs=1000):
+        for _ in range(epochs):
+            y_pred = self.forward(X)
+            error = y - y_pred
+
+            # Gradient descent updates
+            dw = np.dot(X.T, error)
+            db = np.sum(error, axis=0)
+
+            self.weights += learning_rate * dw
+            self.bias += learning_rate * db
+
+# Load Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# One-hot encoding for the target variable
+encoder = OneHotEncoder(sparse=False)
+y_encoded = encoder.fit_transform(y.reshape(-1, 1))
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
+
+# Normalize the features
+X_train = X_train / np.max(X_train, axis=0)
+X_test = X_test / np.max(X_train, axis=0)
+
+# Create and train the sigmoid neuron
+input_size = X_train.shape[1]
+output_size = y_encoded.shape[1]
+sigmoid_neuron = SigmoidNeuron(input_size, output_size)
+sigmoid_neuron.train(X_train, y_train)
+
+# Make predictions on the test data
+predictions = sigmoid_neuron.forward(X_test)
+
+# Convert predictions to class labels
+predicted_labels = np.argmax(predictions, axis=1)
+true_labels = y_test.argmax(axis=1)
+
+# Calculate accuracy
+accuracy = np.mean(predicted_labels == true_labels)
+
+print("Accuracy:", accuracy)
