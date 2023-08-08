@@ -1,0 +1,51 @@
+import numpy as np
+import pandas as pd
+#McCulloch Pits Neuron:
+input= np.array([[0,0], [0,1], [1,0], [1,1]])
+weights = np.array([1,1])
+product = input @ weights
+def threshold(product, threshold_value):
+    if product >= threshold_value:
+        return 1
+    else:
+        return 0
+#AND GATE
+threshold_value = 2
+for i in range(0,4):
+    activation = threshold(product[i], threshold_value)
+    print(f'{activation}')
+#OR GATE
+threshold_value=1
+for i in range(0,4):
+  activation=threshold(product[i],threshold_value)
+  print(f'{activation}')
+#NOR GATE
+weights = np.array([-1,-1])
+product = input @ weights
+threshold_value=0
+for i in range(0,4):
+  activation=threshold(product[i],threshold_value)
+  print(f'{activation}')
+#Perceptron:
+inputs = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+])
+
+weights = np.array([1, 1])
+bias = -1.5
+
+def unitStep(v):
+    return 1 if v >= 0 else 0
+
+def perceptronModel(x):
+    v = np.dot(x, weights) + bias
+    return unitStep(v)
+
+def AND_Function():
+    for x in inputs:
+        output = perceptronModel(x)
+        print(output)
+AND_Function()
