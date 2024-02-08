@@ -1,0 +1,39 @@
+pip install gensim
+import gensim
+from gensim.models import Word2Vec
+from gensim.models.word2vec import LineSentence
+text8_corpus_path = "/corpus.txt"
+
+window_size = 5
+vector_size = 100
+min_count = 5
+sg = 1
+
+sentences = LineSentence(text8_corpus_path)
+model = Word2Vec(sentences, vector_size=vector_size, window=window_size, min_count=min_count, sg=sg)
+
+
+model.save("text8_word2vec.model")
+
+word_vectors = model.wv
+
+similar_words = word_vectors.most_similar("hand", topn=5)
+print("Words most similar to 'hand':", similar_words)
+input_word = "German"
+
+sentence = [input_word]
+for _ in range(5):
+    similar_words = model.wv.most_similar(input_word, topn=5)
+    next_word = None
+    for word, _ in similar_words:
+        if word not in sentence:
+            next_word = word
+            break
+    if next_word is not None:
+        sentence.append(next_word)
+        input_word = next_word
+    else:
+        break
+
+generated_sentence = " ".join(sentence)
+print("Generated Sentence:", generated_sentence)
